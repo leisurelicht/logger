@@ -227,8 +227,12 @@ func newHandler(lg logconfig) (Handler, error) {
 	return nil, fmt.Errorf("Unknown handle:%v", lg.Handle)
 }
 
-func NewLogger(filename, name string) error {
-	bytes, err := ioutil.ReadFile(filename)
+// NewLogger
+// configFile log配置文件的地址
+// name 指定的配置名
+// logFolder 日志文件存放的文件夹地址，会覆盖配置文件中的 dir 参数，为 nil 时则使用配置文件中的 dir
+func NewLogger(configFile, name string, logFolder *string) error {
+	bytes, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		return err
 	}
@@ -245,6 +249,11 @@ func NewLogger(filename, name string) error {
 					Close()
 					return fmt.Errorf("Unknown log name:%v level:%v", name, lg.Level)
 				}
+
+				if logFolder != nil {
+					lg.Dir = *logFolder
+				}
+
 				handler, err := newHandler(lg)
 				if err != nil {
 					Close()
